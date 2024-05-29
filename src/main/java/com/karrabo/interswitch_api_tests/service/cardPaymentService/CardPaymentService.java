@@ -3,6 +3,9 @@ package com.karrabo.interswitch_api_tests.service.cardPaymentService;
 import com.karrabo.interswitch_api_tests.dtos.requests.cardPaymentServiceRequests.*;
 import com.karrabo.interswitch_api_tests.dtos.responses.cardPaymentServiceResponses.*;
 import com.karrabo.interswitch_api_tests.exception.*;
+import com.karrabo.interswitch_api_tests.models.UssdBank;
+
+import java.util.List;
 
 public interface CardPaymentService {
 
@@ -27,5 +30,13 @@ public interface CardPaymentService {
     QrPaymentResponse generateQrPayment(QrPaymentRequest qrPaymentRequest) throws TransactionException, QrPaymentException;
 
     PayWithVirtualAccountResponse payWithVirtualAccount(PayWitVirtualAccountRequest virtualAccountRequest) throws TransactionException, PayWithVirtualAccountException;
+
+    GetWalletCardsResponse getWalletCards(GetWalletCardsRequest walletCardsRequest) throws GetWalletCardException, WalletCardException;
+
+    GenerateAlternativePaymentOptionResponse getAlternativePaymentOptions() throws GenerateAlternativePaymentOptionException;
+
+    List<UssdBank> getUssdBanks() throws Exception;
+
+
 
 }

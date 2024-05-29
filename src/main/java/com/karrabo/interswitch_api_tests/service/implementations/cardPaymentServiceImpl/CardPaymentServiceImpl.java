@@ -3,14 +3,19 @@ package com.karrabo.interswitch_api_tests.service.implementations.cardPaymentSer
 import com.karrabo.interswitch_api_tests.dtos.requests.cardPaymentServiceRequests.*;
 import com.karrabo.interswitch_api_tests.dtos.responses.cardPaymentServiceResponses.*;
 import com.karrabo.interswitch_api_tests.exception.*;
+import com.karrabo.interswitch_api_tests.models.UssdBank;
 import com.karrabo.interswitch_api_tests.service.authService.AuthenticationService;
 import com.karrabo.interswitch_api_tests.service.cardPaymentService.CardPaymentService;
 import com.karrabo.interswitch_api_tests.utils.ExceptionMessageConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class CardPaymentServiceImpl implements CardPaymentService {
@@ -51,6 +56,15 @@ public class CardPaymentServiceImpl implements CardPaymentService {
 
     @Value("${interswitch.pay.with.virtual.account.url}")
     private String payWithVirtualAccountUrl;
+
+    @Value("${interswitch.get.wallet.cards.url}")
+    private String getWalletCardsUrl;
+
+    @Value("${interswitch.generate.alternative.payment.url}")
+    private String alternativePaymentOptionUrl;
+
+    @Value("${interswitch.USSD_banks.url}")
+    private String ussdBanksUrl;
 
 
     public CardPaymentServiceImpl(RestTemplate restTemplate, AuthenticationService authenticationService) {
@@ -389,6 +403,75 @@ public class CardPaymentServiceImpl implements CardPaymentService {
             return response.getBody();
         } else {
             throw new TransactionException(ExceptionMessageConstants.ERROR_PAYING_WITH_VIRTUAL_ACCOUNT + response.getBody());
+        }
+    }
+
+    @Override
+    public GetWalletCardsResponse getWalletCards(GetWalletCardsRequest walletCardsRequest) throws GetWalletCardException, WalletCardException {
+        String GET_WALLET_CARDS_URL =getWalletCardsUrl;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", authToken);
+
+        HttpEntity<GetWalletCardsRequest> entity = new HttpEntity<>(walletCardsRequest, headers);
+
+        ResponseEntity<GetWalletCardsResponse> response;
+        try {
+            response = restTemplate.postForEntity(
+                    GET_WALLET_CARDS_URL,
+                    entity,
+                    GetWalletCardsResponse.class
+            );
+        } catch (Exception e) {
+            throw new GetWalletCardException(ExceptionMessageConstants.ERROR_GETTING_WALLET_CARDS, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
+        } else {
+            throw new WalletCardException(ExceptionMessageConstants.ERROR_GETTING_WALLET_CARDS + response.getBody());
+        }
+    }
+
+    @Override
+    public GenerateAlternativePaymentOptionResponse getAlternativePaymentOptions() throws GenerateAlternativePaymentOptionException {
+
+        String ALTERNATIVE_PAYMENT_OPTION_URL = alternativePaymentOptionUrl;
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", authToken);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<GenerateAlternativePaymentOptionResponse> response = restTemplate.exchange(
+                    ALTERNATIVE_PAYMENT_OPTION_URL,
+                    HttpMethod.GET,
+                    entity,
+                    GenerateAlternativePaymentOptionResponse.class
+            );
+
+            return response.getBody();
+        } catch (HttpClientErrorException message) {
+            throw new GenerateAlternativePaymentOptionException(ExceptionMessageConstants.FAILED_TO_FETCH_ALTERNATIVE_PAYMENT_OPTIONS, message);
+        }
+    }
+
+    @Override
+    public List<UssdBank> getUssdBanks() throws Exception {
+        String USSD_BANK_URL = ussdBanksUrl;
+
+        try {
+            ResponseEntity<UssdBank[]> response = restTemplate.exchange(
+                    USSD_BANK_URL,
+                    HttpMethod.GET,
+                    null,
+                    UssdBank[].class
+            );
+            return Arrays.asList(response.getBody());
+        } catch (HttpClientErrorException e) {
+            throw new Exception("Failed to fetch USSD banks", e);
         }
     }
 }

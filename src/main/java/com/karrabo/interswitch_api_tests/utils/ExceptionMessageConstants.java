@@ -20,4 +20,8 @@ public class ExceptionMessageConstants {
     public static final String ERROR_GENERATING_QR = "Error generating QR payment: ";
 
     public static final String ERROR_PAYING_WITH_VIRTUAL_ACCOUNT = "Error processing virtual account payment: ";
+
+    public static final String ERROR_GETTING_WALLET_CARDS = "Error retrieving wallet cards: ";
+
+    public static final String FAILED_TO_FETCH_ALTERNATIVE_PAYMENT_OPTIONS = "Failed to fetch alternative payment options";
 }

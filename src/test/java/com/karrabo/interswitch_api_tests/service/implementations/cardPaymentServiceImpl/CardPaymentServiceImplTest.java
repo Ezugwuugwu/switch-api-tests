@@ -3,6 +3,7 @@ package com.karrabo.interswitch_api_tests.service.implementations.cardPaymentSer
 import com.karrabo.interswitch_api_tests.dtos.requests.cardPaymentServiceRequests.*;
 import com.karrabo.interswitch_api_tests.dtos.responses.cardPaymentServiceResponses.*;
 import com.karrabo.interswitch_api_tests.exception.*;
+import com.karrabo.interswitch_api_tests.models.UssdBank;
 import com.karrabo.interswitch_api_tests.service.authService.AuthenticationService;
 import com.karrabo.interswitch_api_tests.service.cardPaymentService.CardPaymentService;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -268,5 +271,60 @@ class CardPaymentServiceImplTest {
         assertThrows(PayWithVirtualAccountException.class, () -> {
             cardPaymentService.payWithVirtualAccount(request);
         });
+    }
+
+
+    @Test
+    public void testGetWalletCardsSuccess() throws WalletCardException, GetWalletCardException {
+
+        GetWalletCardsRequest request = new GetWalletCardsRequest();
+        request.setUsername("bughunting005@gmail.com");
+        request.setPassword("password");
+
+        GetWalletCardsResponse actualResponse = cardPaymentService.getWalletCards(request);
+        assertNotNull(actualResponse);
+        System.out.println(actualResponse);
+    }
+
+
+    @Test
+    public void testGetWalletCardsInvalidCredentials() {
+
+        GetWalletCardsRequest request = new GetWalletCardsRequest();
+        request.setUsername("invaliduser");
+        request.setPassword("invalidpassword");
+
+        GetWalletCardException exception = assertThrows(GetWalletCardException.class, () -> {
+            cardPaymentService.getWalletCards(request);
+        });
+        assertNotNull(exception);
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+    }
+
+
+    @Test
+    public void testGetAlternativePaymentOptionsSuccess() throws GenerateAlternativePaymentOptionException {
+        GenerateAlternativePaymentOptionResponse response = cardPaymentService.getAlternativePaymentOptions();
+
+        assertNotNull(response.getPaymentOptions());
+        assertNotNull(response.getMerchant());
+        assertFalse(response.getPaymentOptions().isEmpty());
+        System.out.println(response);
+    }
+
+
+    @Test
+    public void testGetUssdBanksSuccess() throws Exception {
+        List<UssdBank> ussdBanks = cardPaymentService.getUssdBanks();
+
+        assertNotNull(ussdBanks);
+        assertFalse(ussdBanks.isEmpty());
+
+        for (UssdBank bank : ussdBanks) {
+            assertNotNull(bank.getName());
+            assertNotNull(bank.getCode());
+            assertNotNull(bank.getCbnCode());
+            System.out.println(bank);
+        }
     }
 }
