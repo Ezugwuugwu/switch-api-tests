@@ -28,4 +28,14 @@ public class ExceptionMessageConstants {
     public static final String FAILED_TO_TOKENIZE_CARD = "Failed to tokenize card for recurrent transaction: ";
 
     public static final String FAILED_TO_GENERATE_TOKEN = "Failed to perform token process: ";
+
+    public static final String UNABLE_TO_AUTHORIZE = "Unable to authorize with interswitch service provider";
+
+    public static final String UNABLE_TO_RETRIEVE_INFORMATION = "Failed to perform token process: ";
+
+    public static final String UNABLE_TO_PROCESS_REQUEST = "Failed to create credit inquiry: ";
+
+    public static final String INADEQUATE_DETAILS_PROVIDED = "Please provide full transaction details";
+
+    public static final String PAGE_EXCEEDED = "No more data on page with that number";
 }

@@ -19,4 +19,5 @@ class AuthenticationServiceImplTest {
         assertNotNull(accessToken);
         System.out.println("Access Token: " + accessToken);
     }
+
 }

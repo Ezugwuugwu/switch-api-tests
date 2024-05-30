@@ -1,9 +1,9 @@
 package com.karrabo.interswitch_api_tests.service.implementations.authServiceImpl;
 
-import com.karrabo.interswitch_api_tests.dtos.requests.authentication.InterswitchAuthenticationRequest;
 import com.karrabo.interswitch_api_tests.dtos.responses.authentication.InterswitchAuthenticationResponse;
 import com.karrabo.interswitch_api_tests.exception.InterswitchAuthenticationException;
 import com.karrabo.interswitch_api_tests.service.authService.AuthenticationService;
+import com.karrabo.interswitch_api_tests.utils.ExceptionMessageConstants;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 @Service
@@ -32,6 +34,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Scheduled(cron = "0 0 0 * * ?")
     private void renewAuthenticationToken() throws InterswitchAuthenticationException {
         InterswitchAuthenticationResponse response;
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("grant_type", "client_credentials");
+        formData.add("scope", "profile");
         try {
             response = restClient
                     .post()
@@ -39,15 +44,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .accept(MediaType.APPLICATION_JSON)
                     .header("Authorization", AUTH_HEADER_VALUE)
-                    .body(InterswitchAuthenticationRequest
-                            .builder()
-                            .grant_type("client_credentials")
-                            .scope("profile")
-                            .build())
+                    .body(formData)
                     .retrieve()
                     .body(InterswitchAuthenticationResponse.class);
         } catch (Exception e) {
-            throw new InterswitchAuthenticationException("Unable to authorize with interswitch service provider");
+            throw new InterswitchAuthenticationException(ExceptionMessageConstants.UNABLE_TO_AUTHORIZE);
         }
         assert response != null;
         token = response.getAccess_token();
