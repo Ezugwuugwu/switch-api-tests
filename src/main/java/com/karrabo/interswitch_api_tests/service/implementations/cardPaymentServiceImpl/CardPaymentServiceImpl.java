@@ -7,6 +7,8 @@ import com.karrabo.interswitch_api_tests.models.UssdBank;
 import com.karrabo.interswitch_api_tests.service.authService.AuthenticationService;
 import com.karrabo.interswitch_api_tests.service.cardPaymentService.CardPaymentService;
 import com.karrabo.interswitch_api_tests.utils.ExceptionMessageConstants;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -19,11 +21,12 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class CardPaymentServiceImpl implements CardPaymentService {
 
     private final RestTemplate restTemplate;
     private final AuthenticationService authenticationService;
-
 
     @Value("${interswitch.validate.recurrent.url}")
     private String validateRecurrentUrl;
@@ -68,15 +71,9 @@ public class CardPaymentServiceImpl implements CardPaymentService {
     private String ussdBanksUrl;
 
 
-    public CardPaymentServiceImpl(RestTemplate restTemplate, AuthenticationService authenticationService) {
-        this.restTemplate = restTemplate;
-        this.authenticationService = authenticationService;
-    }
-
-
     @Override
     public String authenticateOtp(AuthenticateOtpRequest authenticateOtpRequest) {
-        String accessToken = authenticationService.authenticate();
+        String accessToken = authenticationService.getToken();
         String url = "https://qa.interswitchng.com/api/v3/purchases/otps/auths";
 
         HttpHeaders headers = new HttpHeaders();

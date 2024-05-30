@@ -38,7 +38,7 @@ class CardPaymentServiceImplTest {
     @Test
     public void testAuthenticateOtp_Success() {
 
-            String accessToken = authenticationService.authenticate();
+            String accessToken = authenticationService.getToken();
 
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(accessToken);

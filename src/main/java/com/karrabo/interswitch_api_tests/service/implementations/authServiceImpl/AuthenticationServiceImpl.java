@@ -1,42 +1,61 @@
 package com.karrabo.interswitch_api_tests.service.implementations.authServiceImpl;
 
+import com.karrabo.interswitch_api_tests.dtos.requests.authentication.InterswitchAuthenticationRequest;
+import com.karrabo.interswitch_api_tests.dtos.responses.authentication.InterswitchAuthenticationResponse;
+import com.karrabo.interswitch_api_tests.exception.InterswitchAuthenticationException;
 import com.karrabo.interswitch_api_tests.service.authService.AuthenticationService;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Map;
+import org.springframework.web.client.RestClient;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
 
+    private final RestClient restClient;
 
-    private static final String AUTH_URL = "https://passport.k8.isw.la/passport/oauth/token";
-    private static final String AUTH_HEADER_VALUE = "Basic SUtJQTk2MTRCODIwNjRENjMyRTlCNjQxOERGMzU4QTZBNEFFQTg0RDcyMTg6WENUaUJ0THkxRzljaEFueWcwejNCY2FGSzRjVnB3RGcvR1R3MkVtalRaOD0=";
+    @Value("${interswitch.authUrl}")
+    private String AUTH_URL;
 
-    private final RestTemplate restTemplate;
+    @Value("${interswitch.authHeader}")
+    private String AUTH_HEADER_VALUE;
 
-    public AuthenticationServiceImpl(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    private static String token;
+
+    @PostConstruct
+    @Scheduled(cron = "0 0 0 * * ?")
+    private void renewAuthenticationToken() throws InterswitchAuthenticationException {
+        InterswitchAuthenticationResponse response;
+        try {
+            response = restClient
+                    .post()
+                    .uri(AUTH_URL)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("Authorization", AUTH_HEADER_VALUE)
+                    .body(InterswitchAuthenticationRequest
+                            .builder()
+                            .grant_type("client_credentials")
+                            .scope("profile")
+                            .build())
+                    .retrieve()
+                    .body(InterswitchAuthenticationResponse.class);
+        } catch (Exception e) {
+            throw new InterswitchAuthenticationException("Unable to authorize with interswitch service provider");
+        }
+        assert response != null;
+        token = response.getAccess_token();
     }
 
-
     @Override
-    public String authenticate() {
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.set("Authorization", AUTH_HEADER_VALUE);
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("grant_type", "client_credentials");
-
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
-        ResponseEntity<Map> response = restTemplate.exchange(AUTH_URL, HttpMethod.POST, requestEntity, Map.class);
-
-        return (String) response.getBody().get("access_token");
+    public String getToken() {
+        return token;
     }
 
 }
