@@ -9,7 +9,7 @@ public class TransferServiceDomainObject {
 
     public static ListOfReceivingInstitutionsRequest validateListOfInstitutionsRequest(ListOfReceivingInstitutionsRequest institutionsRequest) {
         if (institutionsRequest.getPerPage() == 0) {
-            institutionsRequest.setPerPage(50L);
+            institutionsRequest.setPerPage(50);
         }
         return institutionsRequest;
     }

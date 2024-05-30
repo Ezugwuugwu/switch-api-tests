@@ -52,6 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         assert response != null;
         token = response.getAccess_token();
+        log.info(token);
     }
 
     @Override

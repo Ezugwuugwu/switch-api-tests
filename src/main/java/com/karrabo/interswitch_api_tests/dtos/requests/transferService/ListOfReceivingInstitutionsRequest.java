@@ -10,7 +10,7 @@ import lombok.*;
 @Setter
 public class ListOfReceivingInstitutionsRequest {
 
-    private Long perPage;
-    private Long pageNumber;
+    private int perPage;
+    private int pageNumber;
 
 }

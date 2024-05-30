@@ -36,7 +36,7 @@ public class TransferServiceImplementation implements TransferService {
         ResponseEntity<CreditInquiryResponse> entity = restClient
                 .post()
                 .uri(TRANSFER_BASE_URL + "/inquiries/credit")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + authenticationService.getToken())
                 .body(request)
@@ -71,8 +71,8 @@ public class TransferServiceImplementation implements TransferService {
         ListOfReceivingInstitutionResponse institutionResponse = entity.getBody();
         assert institutionResponse != null;
         if (
-                (institutionResponse.getTotal() / institutionResponse.getPerPage()) > institutionResponse.getPage()
-                || (institutionResponse.getTotal() / institutionResponse.getPerPage()) > institutionsRequest.getPageNumber()
+                (institutionResponse.getTotal() / institutionResponse.getPerPage()) < institutionResponse.getPage()
+                || (institutionResponse.getTotal() / institutionResponse.getPerPage()) < institutionsRequest.getPageNumber()
         ) {
             throw new OutOfPageException(ExceptionMessageConstants.PAGE_EXCEEDED);
         }
