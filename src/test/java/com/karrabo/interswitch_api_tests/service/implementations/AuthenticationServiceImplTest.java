@@ -14,8 +14,8 @@ class AuthenticationServiceImplTest {
     private AuthenticationService authenticationService;
 
     @Test
-    void testAuthenticate() {
-        String accessToken = authenticationService.authenticate();
+    void testGetToken() {
+        String accessToken = authenticationService.getToken();
         assertNotNull(accessToken);
         System.out.println("Access Token: " + accessToken);
     }
