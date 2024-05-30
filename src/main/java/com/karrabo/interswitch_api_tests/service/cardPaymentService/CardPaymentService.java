@@ -11,7 +11,7 @@ public interface CardPaymentService {
 
     String authenticateOtp(AuthenticateOtpRequest authenticateOtpRequest);
 
-    TokenizeCardResponse TokenizeCard_Recurrent(TokenizeCardRequest tokenizeCardRequest);
+    TokenizeCardResponse TokenizeCard_Recurrent(TokenizeCardRequest tokenizeCardRequest) throws TokenizeCardException;
 
     PurchaseRecurrentResponse purchase_Recurrent (PurchaseRecurrentRequest purchaseRecurrentRequest) throws RecurrentPurchaseException;
 

@@ -23,5 +23,9 @@ public class ExceptionMessageConstants {
 
     public static final String ERROR_GETTING_WALLET_CARDS = "Error retrieving wallet cards: ";
 
-    public static final String FAILED_TO_FETCH_ALTERNATIVE_PAYMENT_OPTIONS = "Failed to fetch alternative payment options";
+    public static final String FAILED_TO_FETCH_ALTERNATIVE_PAYMENT_OPTIONS = "Failed to fetch alternative payment options: ";
+
+    public static final String FAILED_TO_TOKENIZE_CARD = "Failed to tokenize card for recurrent transaction: ";
+
+    public static final String FAILED_TO_GENERATE_TOKEN = "Failed to perform token process: ";
 }

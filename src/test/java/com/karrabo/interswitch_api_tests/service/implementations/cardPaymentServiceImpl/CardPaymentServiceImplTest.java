@@ -54,7 +54,7 @@ class CardPaymentServiceImplTest {
         }
 
     @Test
-    public void testTokenizeCard_Recurrent_Success() {
+    public void testTokenizeCard_Recurrent_Success() throws TokenizeCardException {
         TokenizeCardRequest request = new TokenizeCardRequest(
                 transactionRef,
                 authData);

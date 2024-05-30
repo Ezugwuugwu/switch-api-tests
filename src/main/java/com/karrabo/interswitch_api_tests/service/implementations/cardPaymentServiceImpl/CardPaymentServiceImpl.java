@@ -16,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class CardPaymentServiceImpl implements CardPaymentService {
@@ -97,7 +98,7 @@ public class CardPaymentServiceImpl implements CardPaymentService {
 
 
     @Override
-    public TokenizeCardResponse TokenizeCard_Recurrent(TokenizeCardRequest tokenizeCardRequest) {
+    public TokenizeCardResponse TokenizeCard_Recurrent(TokenizeCardRequest tokenizeCardRequest) throws TokenizeCardException {
         final String VALIDATE_RECURRENT_URL = validateRecurrentUrl;
 
         HttpHeaders headers = new HttpHeaders();
@@ -115,7 +116,7 @@ public class CardPaymentServiceImpl implements CardPaymentService {
         if (response.getStatusCode().is2xxSuccessful()) {
             return response.getBody();
         } else {
-            throw new RuntimeException("Failed to validate recurrent transaction: " + response.getBody());
+            throw new TokenizeCardException(ExceptionMessageConstants.FAILED_TO_TOKENIZE_CARD + response.getBody());
         }
     }
 
@@ -322,6 +323,8 @@ public class CardPaymentServiceImpl implements CardPaymentService {
         }
     }
 
+
+
     @Override
     public UssdPaymentResponse generateUssdPayment(UssdPaymentRequest ussdPaymentRequest) throws TransactionException, USSDPaymentException {
         final String PAY_WITH_USSD_URL = UssdPaymentUrl;
@@ -349,6 +352,8 @@ public class CardPaymentServiceImpl implements CardPaymentService {
             throw new TransactionException(ExceptionMessageConstants.ERROR_PAYING_WITH_USSD + response.getBody());
         }
     }
+
+
 
     @Override
     public QrPaymentResponse generateQrPayment(QrPaymentRequest qrPaymentRequest) throws TransactionException, QrPaymentException {
@@ -378,6 +383,8 @@ public class CardPaymentServiceImpl implements CardPaymentService {
         }
     }
 
+
+
     @Override
     public PayWithVirtualAccountResponse payWithVirtualAccount(PayWitVirtualAccountRequest virtualAccountRequest) throws TransactionException, PayWithVirtualAccountException {
         final String PAY_WITH_VIRTUAL_ACCOUNT_URL = payWithVirtualAccountUrl;
@@ -405,6 +412,8 @@ public class CardPaymentServiceImpl implements CardPaymentService {
             throw new TransactionException(ExceptionMessageConstants.ERROR_PAYING_WITH_VIRTUAL_ACCOUNT + response.getBody());
         }
     }
+
+
 
     @Override
     public GetWalletCardsResponse getWalletCards(GetWalletCardsRequest walletCardsRequest) throws GetWalletCardException, WalletCardException {
@@ -434,6 +443,8 @@ public class CardPaymentServiceImpl implements CardPaymentService {
         }
     }
 
+
+
     @Override
     public GenerateAlternativePaymentOptionResponse getAlternativePaymentOptions() throws GenerateAlternativePaymentOptionException {
 
@@ -458,6 +469,8 @@ public class CardPaymentServiceImpl implements CardPaymentService {
         }
     }
 
+
+
     @Override
     public List<UssdBank> getUssdBanks() throws Exception {
         String USSD_BANK_URL = ussdBanksUrl;
@@ -469,9 +482,9 @@ public class CardPaymentServiceImpl implements CardPaymentService {
                     null,
                     UssdBank[].class
             );
-            return Arrays.asList(response.getBody());
+            return Arrays.asList(Objects.requireNonNull(response.getBody()));
         } catch (HttpClientErrorException e) {
-            throw new Exception("Failed to fetch USSD banks", e);
+            throw new Exception("Failed to fetch USSD banks", e); 
         }
     }
 }
